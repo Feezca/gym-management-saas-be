@@ -2,24 +2,17 @@ package com.gym.entity;
 
 import com.gym.enums.MemberStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
 @Table(name = "members")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class Member {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-    
+@Getter
+@Setter
+public class Member extends BaseEntity{
+
     @Column(nullable = false)
     private String name;
     
@@ -36,7 +29,8 @@ public class Member {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MemberStatus status = MemberStatus.ACTIVE;
-    
-    @Column(name = "trainer_id")
-    private UUID trainerId;
+
+    @ManyToOne
+    @JoinColumn(name = "trainer_id", nullable = false)
+    private User trainer;
 }

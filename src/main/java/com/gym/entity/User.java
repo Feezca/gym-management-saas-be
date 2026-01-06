@@ -2,9 +2,7 @@ package com.gym.entity;
 
 import com.gym.enums.Role;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -13,16 +11,10 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "users", schema = "public")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@Setter
 @EntityListeners(AuditingEntityListener.class)
-public class User {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-    
+public class User extends BaseEntity{
     @Column(nullable = false)
     private String name;
     
@@ -40,8 +32,5 @@ public class User {
     
     @Column(nullable = false)
     private Boolean enabled = true;
-    
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+
 }

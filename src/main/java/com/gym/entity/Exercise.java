@@ -1,25 +1,19 @@
 package com.gym.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.UUID;
 
 @Entity
 @Table(name = "exercises")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class Exercise {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-    
-    @Column(nullable = false)
-    private UUID routineId;
+@Getter
+@Setter
+public class Exercise extends BaseEntity {
+
+    @ManyToOne
+    @JoinColumn(name = "routine_id", nullable = false)
+    private Routine routine;
     
     @Column(nullable = false)
     private String name;

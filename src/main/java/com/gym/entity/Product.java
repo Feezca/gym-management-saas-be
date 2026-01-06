@@ -1,23 +1,16 @@
 package com.gym.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
 @Table(name = "products")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class Product {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+@Getter
+@Setter
+public class Product extends  BaseEntity{
     
     @Column(nullable = false)
     private String name;

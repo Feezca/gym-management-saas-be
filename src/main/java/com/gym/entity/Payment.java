@@ -2,9 +2,7 @@ package com.gym.entity;
 
 import com.gym.enums.PaymentStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,17 +10,13 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "payments")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class Payment {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-    
-    @Column(nullable = false)
-    private UUID memberId;
+@Getter
+@Setter
+public class Payment extends BaseEntity {
+
+    @ManyToOne
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
     
     @Column(nullable = false)
     private BigDecimal amount;

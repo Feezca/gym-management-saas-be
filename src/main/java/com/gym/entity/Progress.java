@@ -1,9 +1,7 @@
 package com.gym.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -13,17 +11,13 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "progress")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class Progress {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-    
-    @Column(nullable = false)
-    private UUID memberId;
+@Getter
+@Setter
+public class Progress extends BaseEntity{
+
+    @OneToOne
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
     
     @Column(nullable = false)
     private LocalDate date;

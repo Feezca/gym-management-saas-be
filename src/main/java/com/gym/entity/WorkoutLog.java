@@ -1,29 +1,24 @@
 package com.gym.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
 @Table(name = "workout_logs")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class WorkoutLog {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-    
-    @Column(nullable = false)
-    private UUID routineId;
-    
-    @Column(nullable = false)
-    private UUID memberId;
+@Getter
+@Setter
+public class WorkoutLog extends BaseEntity{
+
+    @ManyToOne
+    @JoinColumn(name = "routine_id", nullable = false)
+    private Routine routine;
+
+    @ManyToOne
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
     
     @Column(nullable = false)
     private LocalDate date;

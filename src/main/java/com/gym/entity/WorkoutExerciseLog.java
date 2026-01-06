@@ -1,29 +1,24 @@
 package com.gym.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
 @Table(name = "workout_exercise_logs")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class WorkoutExerciseLog {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-    
-    @Column(nullable = false)
-    private UUID workoutLogId;
-    
-    @Column(nullable = false)
-    private UUID exerciseId;
+@Getter
+@Setter
+public class WorkoutExerciseLog extends BaseEntity{
+
+    @ManyToOne
+    @JoinColumn(name = "workout_log_id", nullable = false)
+    private WorkoutLog workoutLog;
+
+    @ManyToOne
+    @JoinColumn(name = "exercise_id", nullable = false)
+    private Exercise exercise;
     
     @Column(nullable = false)
     private Boolean completed = false;

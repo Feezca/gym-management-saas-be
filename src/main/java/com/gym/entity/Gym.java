@@ -1,23 +1,16 @@
 package com.gym.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.UUID;
 
 @Entity
 @Table(name = "gyms", schema = "public")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class Gym {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-    
+@Getter
+@Setter
+public class Gym extends BaseEntity{
+
     @Column(nullable = false)
     private String name;
     
