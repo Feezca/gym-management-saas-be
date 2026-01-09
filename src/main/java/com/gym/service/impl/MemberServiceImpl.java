@@ -32,14 +32,14 @@ public class MemberServiceImpl implements MemberService {
         member.setMembershipType(request.getMembershipType());
         member.setJoinDate(request.getJoinDate());
         member.setStatus(request.getStatus());
-        member.setTrainerId(request.getTrainerId());
+        //member.setTrainer(request.getTrainerId());
 
         Member savedMember = memberRepository.save(member);
         return mapToResponse(savedMember);
     }
 
     @Override
-    public MemberResponse getMemberById(UUID id) {
+    public MemberResponse getMemberById(Long id) {
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Member not found with id: " + id));
         return mapToResponse(member);
@@ -52,7 +52,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public MemberResponse updateMember(UUID id, CreateMemberRequest request) {
+    public MemberResponse updateMember(Long id, CreateMemberRequest request) {
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Member not found with id: " + id));
 
@@ -62,7 +62,7 @@ public class MemberServiceImpl implements MemberService {
         member.setMembershipType(request.getMembershipType());
         member.setJoinDate(request.getJoinDate());
         member.setStatus(request.getStatus());
-        member.setTrainerId(request.getTrainerId());
+        //member.setTrainerId(request.getTrainerId());
 
         Member updatedMember = memberRepository.save(member);
         return mapToResponse(updatedMember);
@@ -70,7 +70,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public void deleteMember(UUID id) {
+    public void deleteMember(Long id) {
         if (!memberRepository.existsById(id)) {
             throw new ResourceNotFoundException("Member not found with id: " + id);
         }
@@ -78,15 +78,14 @@ public class MemberServiceImpl implements MemberService {
     }
 
     private MemberResponse mapToResponse(Member member) {
-        return new MemberResponse(
-                member.getId(),
-                member.getName(),
-                member.getEmail(),
-                member.getPhone(),
-                member.getMembershipType(),
-                member.getJoinDate(),
-                member.getStatus(),
-                member.getTrainerId()
-        );
+        MemberResponse res = new MemberResponse();
+        res.setId(member.getId());
+        res.setName(member.getName());
+        res.setEmail(member.getEmail());
+        res.setPhone(member.getPhone());
+        res.setMembershipType(member.getMembershipType());
+        res.setJoinDate(member.getJoinDate());
+        res.setStatus(member.getStatus());
+        return res;
     }
 }

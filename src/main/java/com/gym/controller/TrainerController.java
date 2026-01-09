@@ -28,22 +28,22 @@ public class TrainerController {
     public ResponseEntity<RoutineResponse> createRoutine(@Valid @RequestBody CreateRoutineRequest request,
                                                           Authentication authentication) {
         // In a real application, you would extract the trainer ID from the JWT token
-        UUID trainerId = UUID.randomUUID(); // Placeholder
+        Long trainerId= 1L; // Placeholder
         return ResponseEntity.status(HttpStatus.CREATED).body(routineService.createRoutine(request, trainerId));
     }
 
     @GetMapping("/routines/member/{memberId}")
-    public ResponseEntity<List<RoutineResponse>> getRoutinesByMember(@PathVariable UUID memberId) {
+    public ResponseEntity<List<RoutineResponse>> getRoutinesByMember(@PathVariable Long memberId) {
         return ResponseEntity.ok(routineService.getRoutinesByMemberId(memberId));
     }
 
     @GetMapping("/routines/{id}")
-    public ResponseEntity<RoutineResponse> getRoutineById(@PathVariable UUID id) {
+    public ResponseEntity<RoutineResponse> getRoutineById(@PathVariable Long id) {
         return ResponseEntity.ok(routineService.getRoutineById(id));
     }
 
     @DeleteMapping("/routines/{id}")
-    public ResponseEntity<Void> deleteRoutine(@PathVariable UUID id) {
+    public ResponseEntity<Void> deleteRoutine(@PathVariable Long id) {
         routineService.deleteRoutine(id);
         return ResponseEntity.noContent().build();
     }

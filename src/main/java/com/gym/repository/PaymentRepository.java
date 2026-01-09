@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface PaymentRepository extends JpaRepository<Payment, UUID> {
-    Page<Payment> findByMemberId(UUID memberId, Pageable pageable);
+public interface PaymentRepository extends JpaRepository<Payment, Long> {
+    Page<Payment> findByMemberId(Long memberId, Pageable pageable);
     Page<Payment> findByStatus(PaymentStatus status, Pageable pageable);
 }

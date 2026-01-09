@@ -1,5 +1,6 @@
 package com.gym.controller;
 
+import com.gym.dto.request.CreateUserRequest;
 import com.gym.dto.request.LoginRequest;
 import com.gym.dto.request.RefreshTokenRequest;
 import com.gym.dto.response.LoginResponse;
@@ -16,6 +17,16 @@ public class AuthController {
 
     public AuthController(AuthService authService) {
         this.authService = authService;
+    }
+
+    @GetMapping("/test")
+    public String test() {
+        return "Auth Service is running.";
+    }
+
+    @PostMapping("/register-first-admin")
+    public ResponseEntity<LoginResponse> registerFirstAdmin(@Valid @RequestBody CreateUserRequest request) {
+        return ResponseEntity.ok(authService.registerFirstAdmin(request));
     }
 
     @PostMapping("/login")

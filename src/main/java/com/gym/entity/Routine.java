@@ -20,7 +20,7 @@ public class Routine extends BaseEntity {
     private Member member;
 
     @ManyToOne
-    @Column(nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User trainer;
     
     @Column(nullable = false)
@@ -28,8 +28,5 @@ public class Routine extends BaseEntity {
     
     @Column(columnDefinition = "TEXT")
     private String description;
-    
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+
 }

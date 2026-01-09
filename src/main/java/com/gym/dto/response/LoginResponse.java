@@ -1,9 +1,11 @@
 package com.gym.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 
-@Data
+
+@Getter
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
 public class LoginResponse {
     private String accessToken;

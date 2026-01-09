@@ -8,10 +8,14 @@ import org.springframework.stereotype.Component;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Map;
 
 @Component
-public class SchemaMultiTenantConnectionProvider implements MultiTenantConnectionProvider<String>, HibernatePropertiesCustomizer {
+public class SchemaMultiTenantConnectionProvider
+        implements MultiTenantConnectionProvider<String>, HibernatePropertiesCustomizer {
+
+    private static final String DEFAULT_SCHEMA = "public";
 
     private final DataSource dataSource;
 
@@ -32,25 +36,33 @@ public class SchemaMultiTenantConnectionProvider implements MultiTenantConnectio
     @Override
     public Connection getConnection(String tenantIdentifier) throws SQLException {
         final Connection connection = getAnyConnection();
-        try {
-            if (tenantIdentifier != null) {
-                connection.createStatement().execute("SET search_path TO " + tenantIdentifier);
-            } else {
-                connection.createStatement().execute("SET search_path TO public");
-            }
+        String schema = (tenantIdentifier != null && !tenantIdentifier.isBlank())
+                ? tenantIdentifier
+                : DEFAULT_SCHEMA;
+
+        try (Statement stmt = connection.createStatement()) {
+            stmt.execute("SET search_path TO " + schema);
         } catch (SQLException e) {
-            throw new RuntimeException("Could not alter JDBC connection to schema [" + tenantIdentifier + "]", e);
+            throw new RuntimeException(
+                    "Could not set schema to " + schema, e
+            );
         }
+
         return connection;
     }
 
     @Override
-    public void releaseConnection(String tenantIdentifier, Connection connection) throws SQLException {
-        try {
-            connection.createStatement().execute("SET search_path TO public");
+    public void releaseConnection(String tenantIdentifier, Connection connection)
+            throws SQLException {
+
+        try (Statement stmt = connection.createStatement()) {
+            stmt.execute("SET search_path TO " + DEFAULT_SCHEMA);
         } catch (SQLException e) {
-            throw new RuntimeException("Could not reset JDBC connection to public schema", e);
+            throw new RuntimeException(
+                    "Could not reset schema to public", e
+            );
         }
+
         connection.close();
     }
 
@@ -71,6 +83,9 @@ public class SchemaMultiTenantConnectionProvider implements MultiTenantConnectio
 
     @Override
     public void customize(Map<String, Object> hibernateProperties) {
-        hibernateProperties.put(AvailableSettings.MULTI_TENANT_CONNECTION_PROVIDER, this);
+        hibernateProperties.put(
+                AvailableSettings.MULTI_TENANT_CONNECTION_PROVIDER,
+                this
+        );
     }
 }

@@ -2,15 +2,19 @@ package com.gym.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import lombok.*;
 
 import java.util.UUID;
 
-@Data
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class CreateRoutineRequest {
     
     @NotNull(message = "Member ID is required")
-    private UUID memberId;
+    private Long memberId;
     
     @NotBlank(message = "Name is required")
     private String name;

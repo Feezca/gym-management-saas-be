@@ -8,6 +8,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface ProgressRepository extends JpaRepository<Progress, UUID> {
-    List<Progress> findByMemberIdOrderByDateDesc(UUID memberId);
+public interface ProgressRepository extends JpaRepository<Progress, Long> {
+    List<Progress> findByMemberIdOrderByDateDesc(Long memberId);
 }

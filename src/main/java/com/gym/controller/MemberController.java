@@ -24,12 +24,12 @@ public class MemberController {
     @GetMapping("/routines")
     public ResponseEntity<List<RoutineResponse>> getMyRoutines(Authentication authentication) {
         // In a real application, you would extract the member ID from the JWT token
-        UUID memberId = UUID.randomUUID(); // Placeholder
+        Long memberId = 1L;  // Placeholder
         return ResponseEntity.ok(routineService.getRoutinesByMemberId(memberId));
     }
 
     @GetMapping("/routines/{id}")
-    public ResponseEntity<RoutineResponse> getRoutineById(@PathVariable UUID id) {
+    public ResponseEntity<RoutineResponse> getRoutineById(@PathVariable Long id) {
         return ResponseEntity.ok(routineService.getRoutineById(id));
     }
 }

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface RoutineRepository extends JpaRepository<Routine, UUID> {
-    List<Routine> findByMemberId(UUID memberId);
-    List<Routine> findByTrainerId(UUID trainerId);
+public interface RoutineRepository extends JpaRepository<Routine, Long> {
+    List<Routine> findByMemberId(Long memberId);
+    List<Routine> findByTrainerId(Long trainerId);
 }

@@ -20,7 +20,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     
     // PostgreSQL
-    runtimeOnly("org.postgresql:postgresql")
+    implementation("org.postgresql:postgresql:42.7.3")
     
     // JWT
     implementation("io.jsonwebtoken:jjwt-api:0.12.5")

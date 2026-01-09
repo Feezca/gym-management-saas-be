@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface MemberRepository extends JpaRepository<Member, UUID> {
+public interface MemberRepository extends JpaRepository<Member, Long> {
     Page<Member> findByStatus(MemberStatus status, Pageable pageable);
-    List<Member> findByTrainerId(UUID trainerId);
+    List<Member> findByTrainerId(Long trainerId);
 }

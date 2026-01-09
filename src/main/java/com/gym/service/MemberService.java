@@ -9,8 +9,8 @@ import java.util.UUID;
 
 public interface MemberService {
     MemberResponse createMember(CreateMemberRequest request);
-    MemberResponse getMemberById(UUID id);
+    MemberResponse getMemberById(Long id);
     Page<MemberResponse> getAllMembers(Pageable pageable);
-    MemberResponse updateMember(UUID id, CreateMemberRequest request);
-    void deleteMember(UUID id);
+    MemberResponse updateMember(Long id, CreateMemberRequest request);
+    void deleteMember(Long id);
 }

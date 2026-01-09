@@ -9,8 +9,8 @@ import java.util.UUID;
 
 public interface ProductService {
     ProductResponse createProduct(CreateProductRequest request);
-    ProductResponse getProductById(UUID id);
+    ProductResponse getProductById(Long id);
     Page<ProductResponse> getAllProducts(Pageable pageable);
-    ProductResponse updateProduct(UUID id, CreateProductRequest request);
-    void deleteProduct(UUID id);
+    ProductResponse updateProduct(Long id, CreateProductRequest request);
+    void deleteProduct(Long id);
 }

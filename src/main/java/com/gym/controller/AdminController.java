@@ -18,7 +18,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/admin")
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
 public class AdminController {
 
     private final MemberService memberService;
@@ -41,18 +41,18 @@ public class AdminController {
     }
 
     @GetMapping("/members/{id}")
-    public ResponseEntity<MemberResponse> getMemberById(@PathVariable UUID id) {
+    public ResponseEntity<MemberResponse> getMemberById(@PathVariable Long id) {
         return ResponseEntity.ok(memberService.getMemberById(id));
     }
 
     @PutMapping("/members/{id}")
-    public ResponseEntity<MemberResponse> updateMember(@PathVariable UUID id,
+    public ResponseEntity<MemberResponse> updateMember(@PathVariable Long id,
                                                         @Valid @RequestBody CreateMemberRequest request) {
         return ResponseEntity.ok(memberService.updateMember(id, request));
     }
 
     @DeleteMapping("/members/{id}")
-    public ResponseEntity<Void> deleteMember(@PathVariable UUID id) {
+    public ResponseEntity<Void> deleteMember(@PathVariable Long id) {
         memberService.deleteMember(id);
         return ResponseEntity.noContent().build();
     }
@@ -69,18 +69,18 @@ public class AdminController {
     }
 
     @GetMapping("/products/{id}")
-    public ResponseEntity<ProductResponse> getProductById(@PathVariable UUID id) {
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id) {
         return ResponseEntity.ok(productService.getProductById(id));
     }
 
     @PutMapping("/products/{id}")
-    public ResponseEntity<ProductResponse> updateProduct(@PathVariable UUID id,
+    public ResponseEntity<ProductResponse> updateProduct(@PathVariable Long id,
                                                           @Valid @RequestBody CreateProductRequest request) {
         return ResponseEntity.ok(productService.updateProduct(id, request));
     }
 
     @DeleteMapping("/products/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable UUID id) {
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }

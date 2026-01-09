@@ -1,9 +1,13 @@
 package com.gym.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+import lombok.*;
 
-@Data
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class RefreshTokenRequest {
     
     @NotBlank(message = "Refresh token is required")

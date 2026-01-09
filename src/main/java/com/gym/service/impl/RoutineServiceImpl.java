@@ -24,10 +24,10 @@ public class RoutineServiceImpl implements RoutineService {
 
     @Override
     @Transactional
-    public RoutineResponse createRoutine(CreateRoutineRequest request, UUID trainerId) {
+    public RoutineResponse createRoutine(CreateRoutineRequest request, Long trainerId) {
         Routine routine = new Routine();
-        routine.setMemberId(request.getMemberId());
-        routine.setTrainerId(trainerId);
+        //routine.setMember(request.getMemberId());
+        //routine.setTrainer(trainerId);
         routine.setName(request.getName());
         routine.setDescription(request.getDescription());
 
@@ -36,14 +36,14 @@ public class RoutineServiceImpl implements RoutineService {
     }
 
     @Override
-    public RoutineResponse getRoutineById(UUID id) {
+    public RoutineResponse getRoutineById(Long id) {
         Routine routine = routineRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Routine not found with id: " + id));
         return mapToResponse(routine);
     }
 
     @Override
-    public List<RoutineResponse> getRoutinesByMemberId(UUID memberId) {
+    public List<RoutineResponse> getRoutinesByMemberId(Long memberId) {
         return routineRepository.findByMemberId(memberId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
@@ -51,7 +51,7 @@ public class RoutineServiceImpl implements RoutineService {
 
     @Override
     @Transactional
-    public void deleteRoutine(UUID id) {
+    public void deleteRoutine(Long id) {
         if (!routineRepository.existsById(id)) {
             throw new ResourceNotFoundException("Routine not found with id: " + id);
         }
@@ -59,13 +59,13 @@ public class RoutineServiceImpl implements RoutineService {
     }
 
     private RoutineResponse mapToResponse(Routine routine) {
-        return new RoutineResponse(
-                routine.getId(),
-                routine.getMemberId(),
-                routine.getTrainerId(),
-                routine.getName(),
-                routine.getDescription(),
-                routine.getCreatedAt()
-        );
+        RoutineResponse res = new RoutineResponse();
+        res.setId(routine.getId());
+        res.setMemberId(routine.getMember().getId());
+        res.setTrainerId(routine.getTrainer().getId());
+        res.setName(routine.getName());
+        res.setDescription(routine.getDescription());
+        res.setCreatedAt(routine.getCreatedAt());
+        return res;
     }
 }
