@@ -5,12 +5,14 @@ import com.gym.dto.request.LoginRequest;
 import com.gym.dto.request.RefreshTokenRequest;
 import com.gym.dto.response.LoginResponse;
 import com.gym.service.AuthService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
+@Transactional
 public class AuthController {
 
     private final AuthService authService;

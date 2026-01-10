@@ -12,6 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @Slf4j
 public class SuperAdminServiceImpl implements SuperAdminService {
@@ -26,16 +28,16 @@ public class SuperAdminServiceImpl implements SuperAdminService {
     }
 
     @Override
-    @Transactional
     public UserResponse createAdmin(CreateUserRequest request) {
         User admin = new User();
-        admin.setName("Super Admin");
+        admin.setName(request.getName());
         admin.setEmail(request.getEmail());
         admin.setPassword(encoder.encode(request.getPassword()));
         admin.setRole(Role.ADMIN);
         admin.setEnabled(true);
+        admin.setCreatedAt(LocalDateTime.now());
         userRepository.save(admin);
-        log.debug("First superadmin user created with email: {}", admin.getEmail());
+        log.debug("admin user created with email: {}", admin.getEmail());
 
         return UserMapper.userToUserResponse(admin);
 

@@ -20,8 +20,8 @@ public class UserPrincipal implements UserDetails {
         this.email = user.getEmail();
         this.password = user.getPassword();
         this.role = user.getRole();
-        this.tenant = user.getGym() != null
-                ? user.getGym().getSchemaName()
+        this.tenant = user.getTenant() != null
+                ? user.getTenant()
                 : null; // SUPERADMIN
     }
 

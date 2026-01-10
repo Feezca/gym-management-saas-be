@@ -1,15 +1,15 @@
 package com.gym.controller;
 
+import com.gym.dto.request.CreateGymRequest;
 import com.gym.dto.request.CreateMemberRequest;
 import com.gym.dto.request.CreateProductRequest;
 import com.gym.dto.request.CreateUserRequest;
-import com.gym.dto.response.LoginResponse;
-import com.gym.dto.response.MemberResponse;
-import com.gym.dto.response.ProductResponse;
-import com.gym.dto.response.UserResponse;
+import com.gym.dto.response.*;
+import com.gym.service.GymService;
 import com.gym.service.MemberService;
 import com.gym.service.ProductService;
 import com.gym.service.SuperAdminService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,16 +21,20 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/super-admin")
 @PreAuthorize("hasRole('SUPERADMIN')")
+@Transactional
 public class SuperAdminController {
 
     private final MemberService memberService;
     private final ProductService productService;
     private final SuperAdminService service;
+    private final GymService gymService;
 
-    public SuperAdminController(MemberService memberService, ProductService productService, SuperAdminService service) {
+    public SuperAdminController(MemberService memberService, ProductService productService, SuperAdminService service
+            , GymService gymService) {
         this.memberService = memberService;
         this.productService = productService;
         this.service = service;
+        this.gymService = gymService;
     }
 
     // Member Management
@@ -43,4 +47,10 @@ public class SuperAdminController {
     public ResponseEntity<UserResponse> registerAdmin(@Valid @RequestBody CreateUserRequest request) {
         return ResponseEntity.ok(service.createAdmin(request));
     }
+
+    @PostMapping("/register_gym")
+    public ResponseEntity<CreateGymResponse> createGym(@Valid @RequestBody CreateGymRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(gymService.createGym(request));
+    }
+
 }
