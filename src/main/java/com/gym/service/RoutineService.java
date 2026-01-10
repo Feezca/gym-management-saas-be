@@ -4,7 +4,6 @@ import com.gym.dto.request.CreateRoutineRequest;
 import com.gym.dto.response.RoutineResponse;
 
 import java.util.List;
-import java.util.UUID;
 
 public interface RoutineService {
     RoutineResponse createRoutine(CreateRoutineRequest request, Long trainerId);

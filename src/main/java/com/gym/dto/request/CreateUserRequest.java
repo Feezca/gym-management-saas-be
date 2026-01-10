@@ -1,6 +1,5 @@
 package com.gym.dto.request;
 
-import com.gym.enums.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

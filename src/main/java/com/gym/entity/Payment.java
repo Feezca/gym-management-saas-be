@@ -2,11 +2,11 @@ package com.gym.entity;
 
 import com.gym.enums.PaymentStatus;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Entity
 @Table(name = "payments")

@@ -1,9 +1,8 @@
 package com.gym.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-
-import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "exercises")

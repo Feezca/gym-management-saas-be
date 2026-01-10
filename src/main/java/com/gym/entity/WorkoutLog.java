@@ -1,10 +1,10 @@
 package com.gym.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Entity
 @Table(name = "workout_logs")

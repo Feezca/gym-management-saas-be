@@ -10,6 +10,7 @@ import com.gym.entity.User;
 import com.gym.enums.Role;
 import com.gym.exception.ResourceNotFoundException;
 import com.gym.exception.UnauthorizedException;
+import com.gym.mapper.UserMapper;
 import com.gym.repository.RefreshTokenRepository;
 import com.gym.repository.UserRepository;
 import com.gym.security.JwtUtil;
@@ -64,7 +65,7 @@ public class AuthServiceImpl implements AuthService {
         refreshToken.setRevoked(false);
         refreshTokenRepository.save(refreshToken);
 
-        UserResponse userResponse = mapToUserResponse(user);
+        UserResponse userResponse = UserMapper.userToUserResponse(user);
         return new LoginResponse(accessToken, refreshTokenString, userResponse);
     }
 
@@ -85,7 +86,7 @@ public class AuthServiceImpl implements AuthService {
         User user = refreshToken.getUser();
         String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getRole().name());
 
-        UserResponse userResponse = mapToUserResponse(user);
+        UserResponse userResponse = UserMapper.userToUserResponse(user);
         return new LoginResponse(accessToken, request.getRefreshToken(), userResponse);
     }
 
@@ -116,7 +117,7 @@ public class AuthServiceImpl implements AuthService {
         refreshToken.setRevoked(false);
         refreshTokenRepository.save(refreshToken);
 
-        UserResponse userResponse = mapToUserResponse(admin);
+        UserResponse userResponse = UserMapper.userToUserResponse(admin);
         return new LoginResponse(accessToken, refreshTokenString, userResponse);
     }
 
@@ -130,14 +131,5 @@ public class AuthServiceImpl implements AuthService {
         refreshTokenRepository.save(refreshToken);
     }
 
-    private UserResponse mapToUserResponse(User user) {
-        UserResponse res = new UserResponse();
-        res.setAvatar(user.getAvatar());
-        res.setId(user.getId());
-        res.setName(user.getName());
-        res.setEmail(user.getEmail());
-        res.setRole(user.getRole());
-        res.setEnabled(user.getEnabled());
-        return res;
-    }
+
 }

@@ -2,13 +2,9 @@ package com.gym.entity;
 
 import com.gym.enums.Role;
 import jakarta.persistence.*;
-import jakarta.persistence.criteria.Fetch;
-import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "users", schema = "public")

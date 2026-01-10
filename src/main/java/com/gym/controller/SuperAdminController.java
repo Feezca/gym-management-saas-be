@@ -2,10 +2,14 @@ package com.gym.controller;
 
 import com.gym.dto.request.CreateMemberRequest;
 import com.gym.dto.request.CreateProductRequest;
+import com.gym.dto.request.CreateUserRequest;
+import com.gym.dto.response.LoginResponse;
 import com.gym.dto.response.MemberResponse;
 import com.gym.dto.response.ProductResponse;
+import com.gym.dto.response.UserResponse;
 import com.gym.service.MemberService;
 import com.gym.service.ProductService;
+import com.gym.service.SuperAdminService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,10 +25,12 @@ public class SuperAdminController {
 
     private final MemberService memberService;
     private final ProductService productService;
+    private final SuperAdminService service;
 
-    public SuperAdminController(MemberService memberService, ProductService productService) {
+    public SuperAdminController(MemberService memberService, ProductService productService, SuperAdminService service) {
         this.memberService = memberService;
         this.productService = productService;
+        this.service = service;
     }
 
     // Member Management
@@ -33,53 +39,8 @@ public class SuperAdminController {
         return ResponseEntity.status(HttpStatus.CREATED).body(memberService.createMember(request));
     }
 
-    @GetMapping("/members")
-    public ResponseEntity<Page<MemberResponse>> getAllMembers(Pageable pageable) {
-        return ResponseEntity.ok(memberService.getAllMembers(pageable));
-    }
-
-    @GetMapping("/members/{id}")
-    public ResponseEntity<MemberResponse> getMemberById(@PathVariable Long id) {
-        return ResponseEntity.ok(memberService.getMemberById(id));
-    }
-
-    @PutMapping("/members/{id}")
-    public ResponseEntity<MemberResponse> updateMember(@PathVariable Long id,
-                                                        @Valid @RequestBody CreateMemberRequest request) {
-        return ResponseEntity.ok(memberService.updateMember(id, request));
-    }
-
-    @DeleteMapping("/members/{id}")
-    public ResponseEntity<Void> deleteMember(@PathVariable Long id) {
-        memberService.deleteMember(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    // Product Management
-    @PostMapping("/products")
-    public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody CreateProductRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(productService.createProduct(request));
-    }
-
-    @GetMapping("/products")
-    public ResponseEntity<Page<ProductResponse>> getAllProducts(Pageable pageable) {
-        return ResponseEntity.ok(productService.getAllProducts(pageable));
-    }
-
-    @GetMapping("/products/{id}")
-    public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id) {
-        return ResponseEntity.ok(productService.getProductById(id));
-    }
-
-    @PutMapping("/products/{id}")
-    public ResponseEntity<ProductResponse> updateProduct(@PathVariable Long id,
-                                                          @Valid @RequestBody CreateProductRequest request) {
-        return ResponseEntity.ok(productService.updateProduct(id, request));
-    }
-
-    @DeleteMapping("/products/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
-        productService.deleteProduct(id);
-        return ResponseEntity.noContent().build();
+    @PostMapping("/register-admin")
+    public ResponseEntity<UserResponse> registerAdmin(@Valid @RequestBody CreateUserRequest request) {
+        return ResponseEntity.ok(service.createAdmin(request));
     }
 }
