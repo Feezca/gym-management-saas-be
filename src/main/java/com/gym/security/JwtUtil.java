@@ -14,22 +14,27 @@ import java.util.Map;
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret}")
-    private String secret;
+    private final SecretKey signingKey;
+    private final Long accessTokenExpiration;
+    private final Long refreshTokenExpiration;
 
-    @Value("${jwt.access-token-expiration}")
-    private Long accessTokenExpiration;
-
-    @Value("${jwt.refresh-token-expiration}")
-    private Long refreshTokenExpiration;
-
-    private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(secret.getBytes());
+    public JwtUtil(
+            @Value("${jwt.secret}") String secret,
+            @Value("${jwt.access-token-expiration}") Long accessTokenExpiration,
+            @Value("${jwt.refresh-token-expiration}") Long refreshTokenExpiration
+    ) {
+        this.signingKey = Keys.hmacShaKeyFor(secret.getBytes());
+        this.accessTokenExpiration = accessTokenExpiration;
+        this.refreshTokenExpiration = refreshTokenExpiration;
     }
 
-    public String generateAccessToken(String email, String role) {
+    private SecretKey getSigningKey() {
+        return signingKey;
+    }
+    public String generateAccessToken(String email, String role, String tenant) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role);
+        claims.put("tenant", tenant);
         return createToken(claims, email, accessTokenExpiration);
     }
 
@@ -53,6 +58,10 @@ public class JwtUtil {
 
     public String extractRole(String token) {
         return extractClaims(token).get("role", String.class);
+    }
+
+    public String extractTenant(String token) {
+        return extractClaims(token).get("tenant", String.class);
     }
 
     public boolean isTokenValid(String token, String email) {

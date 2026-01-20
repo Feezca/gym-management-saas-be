@@ -30,12 +30,12 @@ public class TenantInterceptor implements HandlerInterceptor {
         if (auth != null && auth.getPrincipal() instanceof UserPrincipal principal) {
 
             if (principal.getRole() == Role.SUPERADMIN) {
-                TenantContext.setTenantId("public");
+                TenantContext.setTenant("public");
             } else {
-                TenantContext.setTenantId(principal.getTenant());
+                TenantContext.setTenant(principal.getTenant());
             }
 
-            log.debug("Tenant resolved: {}", TenantContext.getTenantId());
+            log.debug("Tenant resolved: {}", TenantContext.getTenant());
         }
 
         return true;

@@ -1,7 +1,7 @@
 package com.gym.controller;
 
 import com.gym.dto.response.RoutineResponse;
-import com.gym.service.RoutineService;
+import com.gym.service.tenant.RoutineService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;

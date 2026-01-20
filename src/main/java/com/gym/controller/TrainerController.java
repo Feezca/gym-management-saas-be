@@ -2,7 +2,7 @@ package com.gym.controller;
 
 import com.gym.dto.request.CreateRoutineRequest;
 import com.gym.dto.response.RoutineResponse;
-import com.gym.service.RoutineService;
+import com.gym.service.tenant.RoutineService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

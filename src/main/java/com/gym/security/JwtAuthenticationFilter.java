@@ -1,5 +1,6 @@
 package com.gym.security;
 
+import com.gym.util.TenantContext;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,13 +34,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-
-            String token = authHeader.substring(7);
-
-            try {
+        try {
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String token = authHeader.substring(7);
                 String email = jwtUtil.extractEmail(token);
+                String tenant = jwtUtil.extractTenant(token);
 
+                if(tenant != null) {
+                    TenantContext.setTenant(tenant);
+                }
                 if (email != null &&
                         SecurityContextHolder.getContext().getAuthentication() == null &&
                         jwtUtil.isTokenValid(token, email)) {
@@ -57,16 +60,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     authentication.setDetails(
                             new WebAuthenticationDetailsSource().buildDetails(request)
                     );
-
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
-
-            } catch (Exception e) {
-                logger.error("JWT authentication failed", e);
             }
+            filterChain.doFilter(request, response);
+
+        } catch (Exception e) {
+                logger.error("JWT authentication failed", e);
+                filterChain.doFilter(request, response);
+        }finally {
+            TenantContext.clear();
         }
 
-        filterChain.doFilter(request, response);
     }
 }
 

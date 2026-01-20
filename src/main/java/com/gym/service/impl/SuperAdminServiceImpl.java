@@ -2,15 +2,14 @@ package com.gym.service.impl;
 
 import com.gym.dto.request.CreateUserRequest;
 import com.gym.dto.response.UserResponse;
-import com.gym.entity.User;
+import com.gym.domain.public_.entity.User;
 import com.gym.enums.Role;
 import com.gym.mapper.UserMapper;
-import com.gym.repository.UserRepository;
+import com.gym.repository.public_.UserRepository;
 import com.gym.service.SuperAdminService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 

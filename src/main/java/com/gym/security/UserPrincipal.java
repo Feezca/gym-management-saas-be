@@ -1,6 +1,6 @@
 package com.gym.security;
 
-import com.gym.entity.User;
+import com.gym.domain.public_.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import com.gym.enums.Role;

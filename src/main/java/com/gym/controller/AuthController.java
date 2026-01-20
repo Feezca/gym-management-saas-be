@@ -4,7 +4,7 @@ import com.gym.dto.request.CreateUserRequest;
 import com.gym.dto.request.LoginRequest;
 import com.gym.dto.request.RefreshTokenRequest;
 import com.gym.dto.response.LoginResponse;
-import com.gym.service.AuthService;
+import com.gym.service.auth.IAuthService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.*;
 @Transactional
 public class AuthController {
 
-    private final AuthService authService;
+    private final IAuthService authService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(IAuthService authService) {
         this.authService = authService;
     }
 

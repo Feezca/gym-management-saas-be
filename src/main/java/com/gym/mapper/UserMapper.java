@@ -1,7 +1,7 @@
 package com.gym.mapper;
 
 import com.gym.dto.response.UserResponse;
-import com.gym.entity.User;
+import com.gym.domain.public_.entity.User;
 
 public class UserMapper {
 

@@ -2,17 +2,14 @@ package com.gym.controller;
 
 import com.gym.dto.request.CreateGymRequest;
 import com.gym.dto.request.CreateMemberRequest;
-import com.gym.dto.request.CreateProductRequest;
 import com.gym.dto.request.CreateUserRequest;
 import com.gym.dto.response.*;
-import com.gym.service.GymService;
-import com.gym.service.MemberService;
-import com.gym.service.ProductService;
+import com.gym.service.gym.GymService;
+import com.gym.service.tenant.MemberService;
+import com.gym.service.tenant.ProductService;
 import com.gym.service.SuperAdminService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/super-admin")
 @PreAuthorize("hasRole('SUPERADMIN')")
-@Transactional
 public class SuperAdminController {
 
     private final MemberService memberService;

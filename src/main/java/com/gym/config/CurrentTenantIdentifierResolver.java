@@ -15,9 +15,9 @@ public class CurrentTenantIdentifierResolver
 
     @Override
     public String resolveCurrentTenantIdentifier() {
-        String tenantId = TenantContext.getTenantId();
-        return (tenantId != null && !tenantId.isBlank())
-                ? tenantId
+        String tenant = TenantContext.getTenant();
+        return (tenant != null && !tenant.isBlank())
+                ? tenant
                 : DEFAULT_SCHEMA;
     }
 

@@ -1,8 +1,8 @@
 package com.gym.security;
 
 
-import com.gym.entity.User;
-import com.gym.repository.UserRepository;
+import com.gym.domain.public_.entity.User;
+import com.gym.repository.public_.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
