@@ -3,6 +3,7 @@ package com.gym.service.auth.impl;
 import com.gym.dto.request.CreateUserRequest;
 import com.gym.dto.request.LoginRequest;
 import com.gym.dto.request.RefreshTokenRequest;
+import com.gym.dto.response.CurrentUserResponse;
 import com.gym.dto.response.LoginResponse;
 import com.gym.dto.response.UserResponse;
 import com.gym.domain.public_.entity.RefreshToken;
@@ -14,8 +15,10 @@ import com.gym.mapper.UserMapper;
 import com.gym.repository.public_.RefreshTokenRepository;
 import com.gym.repository.public_.UserRepository;
 import com.gym.security.JwtUtil;
+import com.gym.security.UserPrincipal;
 import com.gym.service.auth.IAuthService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -63,7 +66,7 @@ public class AuthServiceImpl implements IAuthService {
         refreshToken.setRevoked(false);
         refreshTokenRepository.save(refreshToken);
 
-        UserResponse userResponse = UserMapper.userToUserResponse(user);
+        CurrentUserResponse userResponse = UserMapper.userToCurrentUserResponse(user);
         return new LoginResponse(accessToken, refreshTokenString, userResponse);
     }
 
@@ -83,7 +86,7 @@ public class AuthServiceImpl implements IAuthService {
         User user = refreshToken.getUser();
         String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getRole().name(), user.getTenant());
 
-        UserResponse userResponse = UserMapper.userToUserResponse(user);
+        CurrentUserResponse userResponse = UserMapper.userToCurrentUserResponse(user);
         return new LoginResponse(accessToken, request.getRefreshToken(), userResponse);
     }
 
@@ -113,7 +116,7 @@ public class AuthServiceImpl implements IAuthService {
         refreshToken.setRevoked(false);
         refreshTokenRepository.save(refreshToken);
 
-        UserResponse userResponse = UserMapper.userToUserResponse(admin);
+        CurrentUserResponse userResponse = UserMapper.userToCurrentUserResponse(admin);
         return new LoginResponse(accessToken, refreshTokenString, userResponse);
     }
 
@@ -125,6 +128,20 @@ public class AuthServiceImpl implements IAuthService {
         refreshToken.setRevoked(true);
         refreshTokenRepository.save(refreshToken);
     }
+    public CurrentUserResponse getCurrentUser() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
 
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalStateException("User is not authenticated");
+        }
+
+        var principal = (UserPrincipal) authentication.getPrincipal();
+
+        return new CurrentUserResponse(
+                principal.getId(),
+                principal.getEmail(),
+                principal.getRole()
+        );
+    }
 
 }

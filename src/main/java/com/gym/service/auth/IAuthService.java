@@ -3,6 +3,7 @@ package com.gym.service.auth;
 import com.gym.dto.request.CreateUserRequest;
 import com.gym.dto.request.LoginRequest;
 import com.gym.dto.request.RefreshTokenRequest;
+import com.gym.dto.response.CurrentUserResponse;
 import com.gym.dto.response.LoginResponse;
 
 public interface IAuthService {
@@ -10,4 +11,5 @@ public interface IAuthService {
     LoginResponse refreshToken(RefreshTokenRequest request);
     void logout(String refreshToken);
     LoginResponse registerFirstAdmin(CreateUserRequest request);
+    CurrentUserResponse getCurrentUser();
 }

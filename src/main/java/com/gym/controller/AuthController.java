@@ -3,12 +3,23 @@ package com.gym.controller;
 import com.gym.dto.request.CreateUserRequest;
 import com.gym.dto.request.LoginRequest;
 import com.gym.dto.request.RefreshTokenRequest;
+import com.gym.dto.response.CurrentUserResponse;
 import com.gym.dto.response.LoginResponse;
+import com.gym.dto.response.UserResponse;
+import com.gym.security.JwtUtil;
+import com.gym.security.UserPrincipal;
 import com.gym.service.auth.IAuthService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Duration;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -16,9 +27,12 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final IAuthService authService;
-
-    public AuthController(IAuthService authService) {
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
+    public AuthController(IAuthService authService, AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
         this.authService = authService;
+        this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
     }
 
     @GetMapping("/test")
@@ -33,7 +47,45 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authService.login(request));
+        Authentication authentication =
+                authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(
+                                request.getEmail(),
+                                request.getPassword()
+                        )
+                );
+
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+
+        String jwt = jwtUtil.generateAccessToken(
+                principal.getUsername(),
+                principal.getRole().name(),
+                principal.getTenant()
+        );
+
+        ResponseCookie cookie = ResponseCookie.from("access_token", jwt)
+                .httpOnly(true)
+                .secure(false) // true en prod
+                .sameSite("Lax")
+                .path("/")
+                .maxAge(Duration.ofHours(8))
+                .build();
+
+        CurrentUserResponse userResponse = new CurrentUserResponse(
+                principal.getId(),
+                principal.getUsername(),
+                principal.getRole()
+        );
+
+        LoginResponse response = new LoginResponse(
+                null,          // accessToken NO expuesto
+                null,          // refreshToken futuro
+                userResponse
+        );
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(response);
     }
 
     @PostMapping("/refresh")
@@ -46,4 +98,20 @@ public class AuthController {
         authService.logout(request.getRefreshToken());
         return ResponseEntity.ok().build();
     }
+    @GetMapping("/me")
+    public ResponseEntity<CurrentUserResponse> me(
+            Authentication authentication
+    ) {
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+
+        CurrentUserResponse response = new CurrentUserResponse(
+                principal.getId(),
+                principal.getUsername(),
+                principal.getRole()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+
 }

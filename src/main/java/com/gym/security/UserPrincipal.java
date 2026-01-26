@@ -25,6 +25,14 @@ public class UserPrincipal implements UserDetails {
                 : null; // SUPERADMIN
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
     public Role getRole() {
         return role;
     }
