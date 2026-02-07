@@ -65,8 +65,9 @@ public class AuthServiceImpl implements IAuthService {
         refreshToken.setExpiryDate(LocalDateTime.now().plusDays(7));
         refreshToken.setRevoked(false);
         refreshTokenRepository.save(refreshToken);
-
+        log.debug("Refresh token created {} with token {}", refreshTokenString, accessToken);
         CurrentUserResponse userResponse = UserMapper.userToCurrentUserResponse(user);
+
         return new LoginResponse(accessToken, refreshTokenString, userResponse);
     }
 

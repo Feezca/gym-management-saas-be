@@ -32,8 +32,10 @@ public class CreateMemberRequest {
     
     @NotNull(message = "Join date is required")
     private LocalDate joinDate;
-    
+
+    @NotNull(message = "Member status is required")
     private MemberStatus status = MemberStatus.ACTIVE;
-    
+
+    @NotNull(message = "Trainer ID is required")
     private UUID trainerId;
 }

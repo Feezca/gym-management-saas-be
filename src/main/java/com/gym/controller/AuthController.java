@@ -47,45 +47,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
-        Authentication authentication =
-                authenticationManager.authenticate(
-                        new UsernamePasswordAuthenticationToken(
-                                request.getEmail(),
-                                request.getPassword()
-                        )
-                );
-
-        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
-
-        String jwt = jwtUtil.generateAccessToken(
-                principal.getUsername(),
-                principal.getRole().name(),
-                principal.getTenant()
-        );
-
-        ResponseCookie cookie = ResponseCookie.from("access_token", jwt)
-                .httpOnly(true)
-                .secure(false) // true en prod
-                .sameSite("Lax")
-                .path("/")
-                .maxAge(Duration.ofHours(8))
-                .build();
-
-        CurrentUserResponse userResponse = new CurrentUserResponse(
-                principal.getId(),
-                principal.getUsername(),
-                principal.getRole()
-        );
-
-        LoginResponse response = new LoginResponse(
-                null,          // accessToken NO expuesto
-                null,          // refreshToken futuro
-                userResponse
-        );
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(response);
+        LoginResponse response = authService.login(request);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/refresh")

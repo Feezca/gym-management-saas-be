@@ -2,11 +2,14 @@ package com.gym.controller;
 
 import com.gym.dto.request.CreateMemberRequest;
 import com.gym.dto.request.CreateProductRequest;
+import com.gym.dto.request.CreateUserRequest;
 import com.gym.dto.response.MemberResponse;
 import com.gym.dto.response.ProductResponse;
+import com.gym.dto.response.UserResponse;
 import com.gym.service.tenant.MemberService;
 import com.gym.service.tenant.ProductService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/admin")
 @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
+@Slf4j
 public class AdminController {
 
     private final MemberService memberService;
@@ -27,10 +31,15 @@ public class AdminController {
         this.productService = productService;
     }
 
+    //staff management can be added here in future
+    @PostMapping("/staff")
+    public UserResponse createStaff(@Valid @RequestBody CreateUserRequest request) {
+        return memberService.createTrainer(request);
+    }
     // Member Management
     @PostMapping("/members")
-    public ResponseEntity<MemberResponse> createMember(@Valid @RequestBody CreateMemberRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(memberService.createMember(request));
+    public MemberResponse createMember(@Valid @RequestBody CreateMemberRequest request) {
+        return memberService.createMember(request);
     }
 
     @GetMapping("/members")
