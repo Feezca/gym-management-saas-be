@@ -47,7 +47,7 @@ public class AuthServiceImpl implements IAuthService {
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UnauthorizedException("Invalid email or password"));
-        log.debug("User {} found for login", user.getEmail());
+
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new UnauthorizedException("Invalid email or password");
         }
@@ -65,7 +65,7 @@ public class AuthServiceImpl implements IAuthService {
         refreshToken.setExpiryDate(LocalDateTime.now().plusDays(7));
         refreshToken.setRevoked(false);
         refreshTokenRepository.save(refreshToken);
-        log.debug("Refresh token created {} with token {}", refreshTokenString, accessToken);
+
         CurrentUserResponse userResponse = UserMapper.userToCurrentUserResponse(user);
 
         return new LoginResponse(accessToken, refreshTokenString, userResponse);

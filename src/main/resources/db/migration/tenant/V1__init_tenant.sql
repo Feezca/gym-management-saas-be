@@ -11,6 +11,7 @@ CREATE SEQUENCE IF NOT EXISTS payments_seq START WITH 1 INCREMENT BY 50;
 CREATE SEQUENCE IF NOT EXISTS progress_seq START WITH 1 INCREMENT BY 50;
 CREATE SEQUENCE IF NOT EXISTS progress_photo_seq START WITH 1 INCREMENT BY 50;
 CREATE SEQUENCE IF NOT EXISTS products_seq START WITH 1 INCREMENT BY 50;
+CREATE SEQUENCE IF NOT EXISTS trainer_seq START WITH 1 INCREMENT BY 1;
 
 -- ===========================
 -- MEMBERS
@@ -39,7 +40,7 @@ CREATE TABLE IF NOT EXISTS routines (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     member_id BIGINT NOT NULL,
-    user_id BIGINT NOT NULL,
+    trainer_id BIGINT,
     created_at TIMESTAMP(6),
     CONSTRAINT routines_pkey PRIMARY KEY (id)
 );
@@ -145,6 +146,15 @@ CREATE TABLE IF NOT EXISTS products (
     CONSTRAINT products_pkey PRIMARY KEY (id)
 );
 
+CREATE TABLE IF NOT EXISTS trainers (
+    id BIGINT NOT NULL DEFAULT nextval('trainer_seq'),
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    phone VARCHAR(255),
+    created_at TIMESTAMP(6),
+    CONSTRAINT trainers_pkey PRIMARY KEY (id)
+);
+
 -- ===========================
 -- FOREIGN KEYS
 -- ===========================
@@ -152,7 +162,7 @@ CREATE TABLE IF NOT EXISTS products (
 ALTER TABLE members
     ADD CONSTRAINT fk_members_trainer
     FOREIGN KEY (trainer_id)
-    REFERENCES public.users(id);
+    REFERENCES trainers(id);
 
 ALTER TABLE routines
     ADD CONSTRAINT fk_routines_member
@@ -160,9 +170,9 @@ ALTER TABLE routines
     REFERENCES members(id);
 
 ALTER TABLE routines
-    ADD CONSTRAINT fk_routines_user
-    FOREIGN KEY (user_id)
-    REFERENCES public.users(id);
+    ADD CONSTRAINT fk_routines_trainer
+    FOREIGN KEY (trainer_id)
+    REFERENCES trainers(id);
 
 ALTER TABLE exercises
     ADD CONSTRAINT fk_exercises_routine
@@ -203,3 +213,5 @@ ALTER TABLE progress_photos
     ADD CONSTRAINT fk_progress_photo
     FOREIGN KEY (progress_id)
     REFERENCES progress(id);
+
+

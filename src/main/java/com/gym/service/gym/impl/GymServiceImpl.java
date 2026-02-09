@@ -22,7 +22,8 @@ public class GymServiceImpl implements GymService {
     private final GymRepository repository;
     private final UserRepository userRepository;
     private final TenantProvisioningService tenantProvisioningService;
-    public GymServiceImpl(GymRepository repository, UserRepository userRepository, TenantProvisioningService tenantProvisioningService) {
+    public GymServiceImpl(GymRepository repository, UserRepository userRepository,
+                          TenantProvisioningService tenantProvisioningService) {
 
         this.repository = repository;
         this.userRepository = userRepository;
@@ -45,9 +46,10 @@ public class GymServiceImpl implements GymService {
             throw new UnauthorizedException("Gym schema already exists");
         }
 
-        // 🔥 1. Crear tenant real
+        // 1. Crear tenant real con tablas y datos iniciales usando Flyway
         tenantProvisioningService.createTenant(schema);
-        // 🔥 2. Crear gym en la base de datos public
+
+        // 2. Crear gym en la base de datos public
         Gym gym = new Gym();
         gym.setName(request.getName());
         gym.setSchemaName(schema);
@@ -56,7 +58,7 @@ public class GymServiceImpl implements GymService {
 
         Gym savedGym = repository.save(gym);
 
-        // 🔥 3. Actualizar usuario admin para asignarle el gym y el tenant
+        // 3. Actualizar usuario admin para asignarle el gym y el tenant
         owner.setTenant(schema);
         userRepository.save(owner);
 
