@@ -5,14 +5,23 @@ import com.gym.enums.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDateTime;
+
 @Entity
-@Table(name = "users")
+@Table(name = "users", schema = "public")
 @Getter
 @Setter
 @EntityListeners(AuditingEntityListener.class)
-public class User extends BaseEntity {
+public class User {
+    @Id
+    @Column
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_seq")
+    @SequenceGenerator(name = "users_seq", sequenceName = "users_seq", allocationSize = 1, schema = "public")
+    private Long id;
+
     @Column(nullable = false)
     private String name;
     
@@ -37,4 +46,8 @@ public class User extends BaseEntity {
 
     @Column(name = "tenant_name")
     private String tenant;
+
+    @CreatedDate
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 }

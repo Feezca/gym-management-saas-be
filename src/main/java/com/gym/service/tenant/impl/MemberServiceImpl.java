@@ -2,6 +2,7 @@ package com.gym.service.tenant.impl;
 
 import com.gym.domain.public_.entity.Gym;
 import com.gym.domain.public_.entity.User;
+import com.gym.dto.request.BaseFilterDto;
 import com.gym.dto.request.CreateMemberRequest;
 import com.gym.dto.request.CreateUserRequest;
 import com.gym.dto.response.MemberResponse;
@@ -15,13 +16,21 @@ import com.gym.repository.public_.GymRepository;
 import com.gym.repository.public_.UserRepository;
 import com.gym.repository.tenant.MemberRepository;
 import com.gym.service.tenant.MemberService;
+import com.gym.util.SpecificationBuilder;
+import com.gym.util.SpecificationService;
 import com.gym.util.TenantContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -31,15 +40,18 @@ public class MemberServiceImpl implements MemberService {
     private final UserRepository userRepository;
     private final GymRepository gymRepository;
     private final PasswordEncoder passwordEncoder;
+    private SpecificationService<User> specificationService;
 
     public MemberServiceImpl(MemberRepository memberRepository,
                              UserRepository userRepository,
                              GymRepository gymRepository,
-                             PasswordEncoder passwordEncoder) {
+                             PasswordEncoder passwordEncoder,
+                             SpecificationService<User> specificationService) {
         this.memberRepository = memberRepository;
         this.userRepository = userRepository;
         this.gymRepository = gymRepository;
         this.passwordEncoder = passwordEncoder;
+        this.specificationService = specificationService;
     }
 
     @Override
@@ -132,5 +144,33 @@ public class MemberServiceImpl implements MemberService {
         trainer.setGym(gym);
 
         return UserMapper.userToUserResponse(userRepository.save(trainer));
+    }
+
+    @Override
+    public Page<UserResponse> getAllTrainers(BaseFilterDto filter) {
+        String tenant = TenantContext.getTenant();
+        Gym gym = gymRepository.findBySchemaName(tenant)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Gym not found for tenant: " + tenant)
+                );
+
+        int page = filter.getPage() != null ? filter.getPage() : 0;
+        int size = filter.getSize() != null ? filter.getSize() : 10;
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Specification<User> spec = new SpecificationBuilder<User>()
+                .equals("role", Role.TRAINER)
+                .equals("gym.id", gym.getId())
+                .equals("active", filter.getActive())
+                .orLikeIgnoreCase(
+                        List.of("name", "email"),
+                        filter.getKeyword()
+                )
+                .build();
+
+        return userRepository.findAll(spec, pageable)
+                .map(UserMapper::userToUserResponse);
+
     }
 }

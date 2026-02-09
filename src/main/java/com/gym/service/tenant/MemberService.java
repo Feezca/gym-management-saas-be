@@ -1,5 +1,6 @@
 package com.gym.service.tenant;
 
+import com.gym.dto.request.BaseFilterDto;
 import com.gym.dto.request.CreateMemberRequest;
 import com.gym.dto.request.CreateUserRequest;
 import com.gym.dto.response.MemberResponse;
@@ -14,4 +15,5 @@ public interface MemberService {
     MemberResponse updateMember(Long id, CreateMemberRequest request);
     void deleteMember(Long id);
     UserResponse createTrainer(CreateUserRequest request);
+    Page<UserResponse> getAllTrainers(BaseFilterDto filter);
 }

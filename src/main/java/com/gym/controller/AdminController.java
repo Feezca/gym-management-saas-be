@@ -1,5 +1,6 @@
 package com.gym.controller;
 
+import com.gym.dto.request.BaseFilterDto;
 import com.gym.dto.request.CreateMemberRequest;
 import com.gym.dto.request.CreateProductRequest;
 import com.gym.dto.request.CreateUserRequest;
@@ -35,6 +36,11 @@ public class AdminController {
     @PostMapping("/staff")
     public UserResponse createStaff(@Valid @RequestBody CreateUserRequest request) {
         return memberService.createTrainer(request);
+    }
+
+    @GetMapping("/staff/search")
+    public Page<UserResponse> getAllStaff( @ModelAttribute BaseFilterDto filter) {
+        return memberService.getAllTrainers(filter);
     }
     // Member Management
     @PostMapping("/members")

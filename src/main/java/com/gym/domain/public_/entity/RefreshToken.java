@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "refresh_tokens")
+@Table(name = "refresh_tokens", schema = "public")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

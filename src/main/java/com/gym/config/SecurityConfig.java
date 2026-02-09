@@ -69,7 +69,7 @@ public class SecurityConfig {
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
             )
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/api/auth/login","/api/auth/register").permitAll()
+                    .requestMatchers("/api/auth/login","/api/auth/register","/api/auth/register-first-admin").permitAll()
                     .requestMatchers("/api/auth/me").authenticated()
                     .requestMatchers("/api/super-admin/**").hasRole("SUPERADMIN")
                 .requestMatchers("/api/admin/**").hasAnyRole("ADMIN","SUPERADMIN")

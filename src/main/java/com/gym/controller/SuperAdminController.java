@@ -44,7 +44,7 @@ public class SuperAdminController {
         return ResponseEntity.ok(service.createAdmin(request));
     }
 
-    @PostMapping("/register_gym")
+    @PostMapping("/register-gym")
     public ResponseEntity<CreateGymResponse> createGym(@Valid @RequestBody CreateGymRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(gymService.createGym(request));
     }
