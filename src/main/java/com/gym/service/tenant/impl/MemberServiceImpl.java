@@ -2,11 +2,14 @@ package com.gym.service.tenant.impl;
 
 import com.gym.domain.public_.entity.Gym;
 import com.gym.domain.public_.entity.User;
+import com.gym.domain.tenant.entity.Trainer;
 import com.gym.dto.request.BaseFilterDto;
 import com.gym.dto.request.CreateMemberRequest;
+import com.gym.dto.request.CreateTrainerRequest;
 import com.gym.dto.request.CreateUserRequest;
 import com.gym.dto.response.MemberResponse;
 import com.gym.domain.tenant.entity.Member;
+import com.gym.dto.response.TrainerResponse;
 import com.gym.dto.response.UserResponse;
 import com.gym.enums.MemberStatus;
 import com.gym.enums.Role;
@@ -15,6 +18,7 @@ import com.gym.mapper.UserMapper;
 import com.gym.repository.public_.GymRepository;
 import com.gym.repository.public_.UserRepository;
 import com.gym.repository.tenant.MemberRepository;
+import com.gym.repository.tenant.TrainerRepository;
 import com.gym.service.tenant.MemberService;
 import com.gym.util.SpecificationBuilder;
 import com.gym.util.SpecificationService;
@@ -38,17 +42,20 @@ public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
     private final UserRepository userRepository;
+    private final TrainerRepository trainerRepository;
     private final GymRepository gymRepository;
     private final PasswordEncoder passwordEncoder;
     private SpecificationService<User> specificationService;
 
     public MemberServiceImpl(MemberRepository memberRepository,
                              UserRepository userRepository,
+                             TrainerRepository trainerRepository,
                              GymRepository gymRepository,
                              PasswordEncoder passwordEncoder,
                              SpecificationService<User> specificationService) {
         this.memberRepository = memberRepository;
         this.userRepository = userRepository;
+        this.trainerRepository = trainerRepository;
         this.gymRepository = gymRepository;
         this.passwordEncoder = passwordEncoder;
         this.specificationService = specificationService;
@@ -65,9 +72,9 @@ public class MemberServiceImpl implements MemberService {
         member.setMembershipType(request.getMembershipType());
         member.setJoinDate(request.getJoinDate());
         member.setStatus(MemberStatus.ACTIVE);
-        User user = userRepository.findById(request.getTrainerId())
+        Trainer trainer = trainerRepository.findById(request.getTrainerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Trainer not found with id: " + request.getTrainerId()));
-        member.setTrainer(user);
+        member.setTrainer(trainer);
 
         Member savedMember = memberRepository.save(member);
         return mapToResponse(savedMember);
@@ -81,15 +88,33 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public Page<MemberResponse> getAllMembers(Pageable pageable) {
-        return memberRepository.findAll(pageable).map(this::mapToResponse);
+    public Page<MemberResponse> search(BaseFilterDto filter) {
+        String tenant = TenantContext.getTenant();
+        Gym gym = gymRepository.findBySchemaName(tenant)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Gym not found for tenant: " + tenant)
+                );
+
+        int page = filter.getPage() != null ? filter.getPage() : 0;
+        int size = filter.getSize() != null ? filter.getSize() : 10;
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Specification<Member> spec = new SpecificationBuilder<Member>()
+                .orLikeIgnoreCase(
+                        List.of("name", "email"),
+                        filter.getKeyword()
+                )
+                .build();
+
+        return memberRepository.findAll(spec, pageable).map(this::mapToResponse);
     }
 
     @Override
     @Transactional
-    public MemberResponse updateMember(Long id, CreateMemberRequest request) {
-        Member member = memberRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Member not found with id: " + id));
+    public MemberResponse updateMember(CreateMemberRequest request) {
+        Member member = memberRepository.findById(request.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Member not found with id: " + request.getId()));
 
         member.setName(request.getName());
         member.setEmail(request.getEmail());
@@ -97,7 +122,12 @@ public class MemberServiceImpl implements MemberService {
         member.setMembershipType(request.getMembershipType());
         member.setJoinDate(request.getJoinDate());
         member.setStatus(request.getStatus());
-        //member.setTrainerId(request.getTrainerId());
+        if(request.getTrainerId() != null && !request.getTrainerId().equals(member.getTrainer().getId())) {
+            Trainer trainer  = trainerRepository.findById(request.getTrainerId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Trainer not found with id: " + request.getTrainerId()));
+            member.setTrainer(trainer);
+        }
+
 
         Member updatedMember = memberRepository.save(member);
         return mapToResponse(updatedMember);
@@ -127,7 +157,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public UserResponse createTrainer(CreateUserRequest request) {
+    public UserResponse createTrainer(CreateTrainerRequest request) {
         // 1️⃣ tenant actual (del JWT)
         String tenant = TenantContext.getTenant();
 
@@ -136,41 +166,72 @@ public class MemberServiceImpl implements MemberService {
                         new ResourceNotFoundException("Gym not found for tenant: " + tenant)
                 );
 
-        User trainer = new User();
-        trainer.setName(request.getName());
-        trainer.setEmail(request.getEmail());
-        trainer.setRole(Role.TRAINER);
-        trainer.setPassword(passwordEncoder.encode(request.getPassword()));
-        trainer.setGym(gym);
+        if (trainerRepository.existsByEmail(request.getEmail())) {
+            throw new IllegalArgumentException("Trainer already exists with email: " + request.getEmail());
+        }
+        User existingUser = userRepository.findByEmail(request.getEmail())
+                .orElse(null);
 
-        return UserMapper.userToUserResponse(userRepository.save(trainer));
+        if (existingUser != null && !existingUser.getRole().equals(Role.TRAINER)) {
+            throw new IllegalArgumentException("User exists but does not have the TRAINER role.");
+        }
+
+        Trainer trainer = new Trainer();
+        trainer.setEmail(request.getEmail());
+        trainer.setName(request.getName());
+        trainer.setPhone(request.getPhone());
+        trainerRepository.save(trainer);
+
+        if (existingUser == null) {
+            User userTrainer = new User();
+            userTrainer.setName(request.getName());
+            userTrainer.setEmail(request.getEmail());
+            userTrainer.setRole(Role.TRAINER);
+            userTrainer.setPassword(passwordEncoder.encode(request.getPassword()));
+            userTrainer.setGym(gym);
+            userTrainer = userRepository.save(userTrainer);
+
+            return UserMapper.userToUserResponse(userTrainer);
+        }
+        return UserMapper.userToUserResponse(existingUser);
     }
 
     @Override
-    public Page<UserResponse> getAllTrainers(BaseFilterDto filter) {
-        String tenant = TenantContext.getTenant();
-        Gym gym = gymRepository.findBySchemaName(tenant)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Gym not found for tenant: " + tenant)
-                );
+    public Page<TrainerResponse> searchStaff(BaseFilterDto filter) {
 
         int page = filter.getPage() != null ? filter.getPage() : 0;
         int size = filter.getSize() != null ? filter.getSize() : 10;
 
         Pageable pageable = PageRequest.of(page, size);
 
-        Specification<User> spec = new SpecificationBuilder<User>()
-                .equals("role", Role.TRAINER)
-                .equals("gym.id", gym.getId())
-                .equals("active", filter.getActive())
+        Specification<Trainer> spec = new SpecificationBuilder<Trainer>()
                 .orLikeIgnoreCase(
-                        List.of("name", "email"),
+                        List.of("name", "email", "phone"),
                         filter.getKeyword()
                 )
                 .build();
 
-        return userRepository.findAll(spec, pageable)
-                .map(UserMapper::userToUserResponse);
+        return trainerRepository.findAll(spec, pageable)
+                .map(this::trainerToResponse);
 
+    }
+
+
+    @Override
+    public List<TrainerResponse> getAllTrainers() {
+
+        return trainerRepository.findAll()
+                .stream()
+                .map(this::trainerToResponse)
+                .toList();
+    }
+
+    public TrainerResponse trainerToResponse(Trainer entity){
+        TrainerResponse response = new TrainerResponse();
+        response.setEmail(entity.getEmail());
+        response.setName(entity.getName());
+        response.setPhone(entity.getPhone());
+        response.setId(entity.getId());
+        return response;
     }
 }

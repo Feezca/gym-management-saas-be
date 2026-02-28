@@ -70,25 +70,45 @@ public class AuthServiceImpl implements IAuthService {
 
         return new LoginResponse(accessToken, refreshTokenString, userResponse);
     }
-
     @Override
     public LoginResponse refreshToken(RefreshTokenRequest request) {
-        RefreshToken refreshToken = refreshTokenRepository.findByToken(request.getRefreshToken())
+
+        RefreshToken oldToken = refreshTokenRepository.findByToken(request.getRefreshToken())
                 .orElseThrow(() -> new UnauthorizedException("Invalid refresh token"));
 
-        if (refreshToken.getRevoked()) {
-            throw new UnauthorizedException("Refresh token has been revoked");
+        if (oldToken.getRevoked()) {
+            throw new UnauthorizedException("Refresh token revoked");
         }
 
-        if (refreshToken.getExpiryDate().isBefore(LocalDateTime.now())) {
-            throw new UnauthorizedException("Refresh token has expired");
+        if (oldToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new UnauthorizedException("Refresh token expired");
         }
 
-        User user = refreshToken.getUser();
-        String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getRole().name(), user.getTenant());
+        oldToken.setRevoked(true);
+        refreshTokenRepository.save(oldToken);
 
-        CurrentUserResponse userResponse = UserMapper.userToCurrentUserResponse(user);
-        return new LoginResponse(accessToken, request.getRefreshToken(), userResponse);
+        User user = oldToken.getUser();
+
+        String newAccessToken = jwtUtil.generateAccessToken(
+                user.getEmail(),
+                user.getRole().name(),
+                user.getTenant()
+        );
+
+        String newRefreshTokenString = jwtUtil.generateRefreshToken(user.getEmail());
+
+        RefreshToken newRefreshToken = new RefreshToken();
+        newRefreshToken.setToken(newRefreshTokenString);
+        newRefreshToken.setUser(user);
+        newRefreshToken.setExpiryDate(LocalDateTime.now().plusDays(7));
+        newRefreshToken.setRevoked(false);
+
+        refreshTokenRepository.save(newRefreshToken);
+
+        CurrentUserResponse userResponse =
+                UserMapper.userToCurrentUserResponse(user);
+
+        return new LoginResponse(newAccessToken, newRefreshTokenString, userResponse);
     }
 
     @Override

@@ -34,5 +34,5 @@ public class Member extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "trainer_id", nullable = false)
-    private User trainer;
+    private Trainer trainer;
 }

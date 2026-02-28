@@ -1,11 +1,9 @@
 package com.gym.controller;
 
-import com.gym.dto.request.BaseFilterDto;
-import com.gym.dto.request.CreateMemberRequest;
-import com.gym.dto.request.CreateProductRequest;
-import com.gym.dto.request.CreateUserRequest;
+import com.gym.dto.request.*;
 import com.gym.dto.response.MemberResponse;
 import com.gym.dto.response.ProductResponse;
+import com.gym.dto.response.TrainerResponse;
 import com.gym.dto.response.UserResponse;
 import com.gym.service.tenant.MemberService;
 import com.gym.service.tenant.ProductService;
@@ -17,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -34,23 +34,23 @@ public class AdminController {
 
     //staff management can be added here in future
     @PostMapping("/staff")
-    public UserResponse createStaff(@Valid @RequestBody CreateUserRequest request) {
+    public UserResponse createStaff(@Valid @RequestBody CreateTrainerRequest request) {
         return memberService.createTrainer(request);
     }
 
     @GetMapping("/staff/search")
-    public Page<UserResponse> getAllStaff( @ModelAttribute BaseFilterDto filter) {
-        return memberService.getAllTrainers(filter);
+    public Page<TrainerResponse> searchStaff( @ModelAttribute BaseFilterDto filter) {
+        return memberService.searchStaff(filter);
+    }
+
+    @GetMapping("/staff")
+    public List<TrainerResponse> getAllStaff() {
+        return memberService.getAllTrainers();
     }
     // Member Management
     @PostMapping("/members")
     public MemberResponse createMember(@Valid @RequestBody CreateMemberRequest request) {
         return memberService.createMember(request);
-    }
-
-    @GetMapping("/members")
-    public ResponseEntity<Page<MemberResponse>> getAllMembers(Pageable pageable) {
-        return ResponseEntity.ok(memberService.getAllMembers(pageable));
     }
 
     @GetMapping("/members/{id}")
@@ -61,13 +61,7 @@ public class AdminController {
     @PutMapping("/members/{id}")
     public ResponseEntity<MemberResponse> updateMember(@PathVariable Long id,
                                                         @Valid @RequestBody CreateMemberRequest request) {
-        return ResponseEntity.ok(memberService.updateMember(id, request));
-    }
-
-    @DeleteMapping("/members/{id}")
-    public ResponseEntity<Void> deleteMember(@PathVariable Long id) {
-        memberService.deleteMember(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(memberService.updateMember(request));
     }
 
     // Product Management

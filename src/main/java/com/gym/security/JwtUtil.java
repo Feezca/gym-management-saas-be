@@ -79,4 +79,12 @@ public class JwtUtil {
                 .parseSignedClaims(token)
                 .getPayload();
     }
+
+    public boolean isRefreshTokenValid(String token) {
+        try {
+            return !isTokenExpired(token);
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

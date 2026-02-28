@@ -18,7 +18,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateMemberRequest {
-    
+
+    private Long id;
+
     @NotBlank(message = "Name is required")
     private String name;
     
@@ -37,5 +39,5 @@ public class CreateMemberRequest {
     private MemberStatus status = MemberStatus.ACTIVE;
 
     @NotNull(message = "Trainer ID is required")
-    private UUID trainerId;
+    private Long trainerId;
 }
