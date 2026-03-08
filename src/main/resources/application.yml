@@ -13,6 +13,7 @@ spring:
     locations: classpath:db/migration/public
     default-schema: public
     baseline-on-migrate: true
+    validate-on-migrate: true
 
   jpa:
     hibernate:
@@ -20,11 +21,12 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        use_sql_comments: true
         format_sql: true
-        multiTenancy: SCHEMA
+        multi_tenancy: SCHEMA
         multi_tenant_connection_provider: com.gym.config.SchemaMultiTenantConnectionProvider
-        tenant_identifier_resolver: com.gym.config.CurrentTenantIdentifierResolver
-    show-sql: false
+        multi_tenant_identifier_resolver: com.gym.config.CurrentTenantIdentifierResolver
+        show-sql: false
   
   jackson:
     serialization:
@@ -33,7 +35,7 @@ spring:
 
 jwt:
   secret: your-256-bit-secret-key-change-this-in-production-make-it-long-enough
-  access-token-expiration: 900000 # 15 minutes in milliseconds
+  access-token-expiration: 3600000 # 15 minutes in milliseconds
   refresh-token-expiration: 604800000 # 7 days in milliseconds
 
 logging:

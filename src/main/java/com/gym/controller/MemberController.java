@@ -3,6 +3,7 @@ package com.gym.controller;
 import com.gym.dto.request.BaseFilterDto;
 import com.gym.dto.request.CreateMemberRequest;
 import com.gym.dto.response.MemberResponse;
+import com.gym.dto.response.MemberStatisticsResponse;
 import com.gym.dto.response.RoutineResponse;
 import com.gym.service.tenant.MemberService;
 import com.gym.service.tenant.RoutineService;
@@ -64,5 +65,20 @@ public class MemberController {
     @GetMapping("/search")
     public Page<MemberResponse> search(@ModelAttribute BaseFilterDto filter) {
         return memberService.search(filter);
+    }
+
+    @GetMapping("/statistics")
+    public MemberStatisticsResponse getMemberStatistics() {
+        return memberService.getMemberStatistics();
+    }
+
+    @GetMapping("/recent")
+    public List<MemberResponse> getRecentMembers() {
+        return memberService.lastFourMembers();
+    }
+
+    @GetMapping
+    public List<MemberResponse> getAllMembers() {
+        return memberService.getAllMembers();
     }
 }

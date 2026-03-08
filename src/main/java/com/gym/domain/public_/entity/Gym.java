@@ -19,7 +19,7 @@ public class Gym {
     @Id
     @Column
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gyms_seq")
-    @SequenceGenerator(name = "gyms_seq", sequenceName = "gyms_seq", allocationSize = 1, schema = "public")
+    @SequenceGenerator(name = "gyms_seq", sequenceName = "gyms_seq",  schema = "public")
     private Long id;
 
     @Column(nullable = false)

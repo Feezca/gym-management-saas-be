@@ -5,12 +5,14 @@ import com.gym.dto.request.CreateMemberRequest;
 import com.gym.dto.request.CreateTrainerRequest;
 import com.gym.dto.request.CreateUserRequest;
 import com.gym.dto.response.MemberResponse;
+import com.gym.dto.response.MemberStatisticsResponse;
 import com.gym.dto.response.TrainerResponse;
 import com.gym.dto.response.UserResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Map;
 
 public interface MemberService {
     MemberResponse createMember(CreateMemberRequest request);
@@ -21,4 +23,8 @@ public interface MemberService {
     void deleteMember(Long id);
     UserResponse createTrainer(CreateTrainerRequest request);
     Page<TrainerResponse> searchStaff(BaseFilterDto filter);
+    List<MemberResponse> lastFourMembers();
+    MemberStatisticsResponse getMemberStatistics();
+    List<MemberResponse> getAllMembers();
+    void deleteTrainer(Long id);
 }
