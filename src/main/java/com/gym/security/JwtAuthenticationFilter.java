@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 @Component
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
@@ -37,7 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         System.out.println(">>> JWT FILTER EXECUTING: " + request.getMethod() + " " + request.getRequestURI());
 
         String path = request.getServletPath();
-
+        log.debug("path {} ",path);
         // 1️⃣ No filtrar endpoints públicos de auth
         if (path.startsWith("/auth")) {
             filterChain.doFilter(request, response);
@@ -46,8 +48,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
         String authHeader = request.getHeader("Authorization");
-
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            log.debug("rompeeee");
             filterChain.doFilter(request, response);
             return;
         }

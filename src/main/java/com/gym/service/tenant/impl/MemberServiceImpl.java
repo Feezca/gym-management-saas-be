@@ -9,11 +9,15 @@ import com.gym.dto.request.CreateTrainerRequest;
 import com.gym.dto.request.CreateUserRequest;
 import com.gym.dto.response.MemberResponse;
 import com.gym.domain.tenant.entity.Member;
+import com.gym.dto.response.MemberStatisticsResponse;
 import com.gym.dto.response.TrainerResponse;
 import com.gym.dto.response.UserResponse;
 import com.gym.enums.MemberStatus;
 import com.gym.enums.Role;
+import com.gym.exception.BadRequestException;
+import com.gym.exception.ConflictException;
 import com.gym.exception.ResourceNotFoundException;
+import com.gym.mapper.MemberMapper;
 import com.gym.mapper.UserMapper;
 import com.gym.repository.public_.GymRepository;
 import com.gym.repository.public_.UserRepository;
@@ -32,6 +36,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,14 +82,14 @@ public class MemberServiceImpl implements MemberService {
         member.setTrainer(trainer);
 
         Member savedMember = memberRepository.save(member);
-        return mapToResponse(savedMember);
+        return MemberMapper.mapToResponse(savedMember);
     }
 
     @Override
     public MemberResponse getMemberById(Long id) {
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Member not found with id: " + id));
-        return mapToResponse(member);
+        return MemberMapper.mapToResponse(member);
     }
 
     @Override
@@ -107,7 +112,7 @@ public class MemberServiceImpl implements MemberService {
                 )
                 .build();
 
-        return memberRepository.findAll(spec, pageable).map(this::mapToResponse);
+        return memberRepository.findAll(spec, pageable).map(MemberMapper::mapToResponse);
     }
 
     @Override
@@ -130,7 +135,7 @@ public class MemberServiceImpl implements MemberService {
 
 
         Member updatedMember = memberRepository.save(member);
-        return mapToResponse(updatedMember);
+        return MemberMapper.mapToResponse(updatedMember);
     }
 
     @Override
@@ -142,23 +147,10 @@ public class MemberServiceImpl implements MemberService {
         memberRepository.deleteById(id);
     }
 
-    private MemberResponse mapToResponse(Member member) {
-        MemberResponse res = new MemberResponse();
-        res.setId(member.getId());
-        res.setName(member.getName());
-        res.setEmail(member.getEmail());
-        res.setPhone(member.getPhone());
-        res.setMembershipType(member.getMembershipType());
-        res.setJoinDate(member.getJoinDate());
-        res.setStatus(member.getStatus());
-        return res;
-    }
-
 
     @Override
     @Transactional
     public UserResponse createTrainer(CreateTrainerRequest request) {
-        // 1️⃣ tenant actual (del JWT)
         String tenant = TenantContext.getTenant();
 
         Gym gym = gymRepository.findBySchemaName(tenant)
@@ -167,33 +159,49 @@ public class MemberServiceImpl implements MemberService {
                 );
 
         if (trainerRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("Trainer already exists with email: " + request.getEmail());
+            throw new ConflictException("Trainer already exists with email: " + request.getEmail());
         }
-        User existingUser = userRepository.findByEmail(request.getEmail())
+
+        User user = userRepository.findByEmail(request.getEmail())
                 .orElse(null);
 
-        if (existingUser != null && !existingUser.getRole().equals(Role.TRAINER)) {
-            throw new IllegalArgumentException("User exists but does not have the TRAINER role.");
+        if (user != null) {
+            if (user.getRole() != Role.TRAINER) {
+                throw new ConflictException("User exists but does not have the TRAINER role.");
+            }
+
+            if (user.getTenant() == null) {
+                user.setGym(gym);
+                user.setTenant(tenant);
+                user = userRepository.save(user);
+            } else if (!tenant.equals(user.getTenant())) {
+                throw new ConflictException("Trainer user is already associated with another gym.");
+            }
+        } else {
+            if (request.getPassword() == null || request.getPassword().isBlank()) {
+                throw new BadRequestException("Password is required to create a new trainer user.");
+            }
+
+            user = new User();
+            user.setName(request.getName());
+            user.setEmail(request.getEmail());
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+            user.setRole(Role.TRAINER);
+            user.setEnabled(true);
+            user.setGym(gym);
+            user.setTenant(tenant);
+            user = userRepository.save(user);
         }
 
         Trainer trainer = new Trainer();
         trainer.setEmail(request.getEmail());
         trainer.setName(request.getName());
         trainer.setPhone(request.getPhone());
+        trainer.setAgreedAmount(request.getAgreedAmount());
+        trainer.setPaymentType(request.getPaymentType());
         trainerRepository.save(trainer);
 
-        if (existingUser == null) {
-            User userTrainer = new User();
-            userTrainer.setName(request.getName());
-            userTrainer.setEmail(request.getEmail());
-            userTrainer.setRole(Role.TRAINER);
-            userTrainer.setPassword(passwordEncoder.encode(request.getPassword()));
-            userTrainer.setGym(gym);
-            userTrainer = userRepository.save(userTrainer);
-
-            return UserMapper.userToUserResponse(userTrainer);
-        }
-        return UserMapper.userToUserResponse(existingUser);
+        return UserMapper.userToUserResponse(user);
     }
 
     @Override
@@ -232,6 +240,58 @@ public class MemberServiceImpl implements MemberService {
         response.setName(entity.getName());
         response.setPhone(entity.getPhone());
         response.setId(entity.getId());
+        response.setAgreedAmount(entity.getAgreedAmount());
+        response.setPaymentType(entity.getPaymentType());
         return response;
+    }
+
+    @Override
+    public List<MemberResponse> lastFourMembers() {
+        return memberRepository.findTop4ByOrderByJoinDateDesc()
+                .stream()
+                .map(MemberMapper::mapToResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public void deleteTrainer(Long id) {
+        if (!trainerRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Trainer not found with id: " + id);
+        }
+        trainerRepository.deleteById(id);
+    }
+
+    @Override
+    public MemberStatisticsResponse getMemberStatistics() {
+
+        Long totalMembers = memberRepository.count();
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startOfMonth = now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime endOfMonth = startOfMonth.plusMonths(1).minusSeconds(1);
+        Long newMembersThisMonth = memberRepository.countByCreatedAtBetween(startOfMonth, endOfMonth);
+        Long activeMembers = memberRepository.countByStatus(MemberStatus.ACTIVE);
+
+
+        int growthPercentage = 0;
+
+        if (totalMembers > 0) {
+            growthPercentage = (int) ((newMembersThisMonth * 100) / totalMembers);
+        }
+        MemberStatisticsResponse response = new MemberStatisticsResponse();
+        response.setTotalMembers(totalMembers);
+        response.setActiveMembers(activeMembers);
+        response.setNewMembersThisMonth(newMembersThisMonth);
+        response.setMonthlyGrowthPercentage(growthPercentage);
+        return response;
+    }
+
+    @Override
+    public List<MemberResponse> getAllMembers() {
+        return memberRepository.findAll()
+                .stream()
+                .map(MemberMapper::mapToResponse)
+                .toList();
     }
 }

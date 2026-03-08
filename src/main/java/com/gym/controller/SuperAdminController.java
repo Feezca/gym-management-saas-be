@@ -49,4 +49,6 @@ public class SuperAdminController {
         return ResponseEntity.status(HttpStatus.CREATED).body(gymService.createGym(request));
     }
 
+
+
 }

@@ -1,12 +1,12 @@
 package com.gym.dto.response;
 
-import com.gym.enums.Role;
+import com.gym.enums.PaymentType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 
 @Getter
@@ -18,4 +18,6 @@ public class TrainerResponse {
     private String name;
     private String email;
     private String phone;
+    private BigDecimal agreedAmount;
+    private PaymentType paymentType;
 }

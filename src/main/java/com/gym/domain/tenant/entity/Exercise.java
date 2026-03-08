@@ -1,5 +1,6 @@
 package com.gym.domain.tenant.entity;
 
+import com.gym.domain.public_.entity.ExerciseGlobal;
 import com.gym.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -12,18 +13,12 @@ import lombok.Setter;
 public class Exercise extends BaseEntity {
 
     @ManyToOne
-    @JoinColumn(name = "routine_id", nullable = false)
-    private Routine routine;
-    
-    @Column(nullable = false)
-    private String name;
-    
-    private Integer sets;
-    
-    private Integer reps;
-    
-    private Integer rest; // in seconds
-    
-    @Column(columnDefinition = "TEXT")
-    private String notes;
+    @JoinColumn(name = "catalog_exercise_id", nullable = false)
+    private ExerciseGlobal catalogExercise;
+
+    @Column(name = "custom_name")
+    private String customName;
+
+    @Column(name = "is_enabled", nullable = false)
+    private Boolean isEnabled = true;
 }

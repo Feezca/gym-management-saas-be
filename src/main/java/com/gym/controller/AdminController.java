@@ -1,10 +1,12 @@
 package com.gym.controller;
 
 import com.gym.dto.request.*;
+import com.gym.dto.response.ExerciseResponse;
 import com.gym.dto.response.MemberResponse;
 import com.gym.dto.response.ProductResponse;
 import com.gym.dto.response.TrainerResponse;
 import com.gym.dto.response.UserResponse;
+import com.gym.service.tenant.ExerciseService;
 import com.gym.service.tenant.MemberService;
 import com.gym.service.tenant.ProductService;
 import jakarta.validation.Valid;
@@ -26,10 +28,12 @@ public class AdminController {
 
     private final MemberService memberService;
     private final ProductService productService;
+    private final ExerciseService exerciseService;
 
-    public AdminController(MemberService memberService, ProductService productService) {
+    public AdminController(MemberService memberService, ProductService productService, ExerciseService exerciseService) {
         this.memberService = memberService;
         this.productService = productService;
+        this.exerciseService = exerciseService;
     }
 
     //staff management can be added here in future
@@ -41,6 +45,12 @@ public class AdminController {
     @GetMapping("/staff/search")
     public Page<TrainerResponse> searchStaff( @ModelAttribute BaseFilterDto filter) {
         return memberService.searchStaff(filter);
+    }
+
+    @DeleteMapping("/staff/{id}")
+    public ResponseEntity<Void> deleteTrainer(@PathVariable Long id) {
+        memberService.deleteTrainer(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/staff")
@@ -63,6 +73,14 @@ public class AdminController {
                                                         @Valid @RequestBody CreateMemberRequest request) {
         return ResponseEntity.ok(memberService.updateMember(request));
     }
+
+
+    @DeleteMapping("/members/{id}")
+    public ResponseEntity<Void> deleteMember(@PathVariable Long id) {
+        memberService.deleteMember(id);
+        return ResponseEntity.noContent().build();
+    }
+
 
     // Product Management
     @PostMapping("/products")
@@ -89,6 +107,34 @@ public class AdminController {
     @DeleteMapping("/products/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Exercise Management
+    @PostMapping("/exercises")
+    public ResponseEntity<ExerciseResponse> createExercise(@Valid @RequestBody CreateExerciseRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(exerciseService.createExercise(request));
+    }
+
+    @GetMapping("/exercises")
+    public ResponseEntity<Page<ExerciseResponse>> getAllExercises(Pageable pageable) {
+        return ResponseEntity.ok(exerciseService.getAllExercises(pageable));
+    }
+
+    @GetMapping("/exercises/{id}")
+    public ResponseEntity<ExerciseResponse> getExerciseById(@PathVariable Long id) {
+        return ResponseEntity.ok(exerciseService.getExerciseById(id));
+    }
+
+    @PutMapping("/exercises/{id}")
+    public ResponseEntity<ExerciseResponse> updateExercise(@PathVariable Long id,
+                                                          @Valid @RequestBody CreateExerciseRequest request) {
+        return ResponseEntity.ok(exerciseService.updateExercise(id, request));
+    }
+
+    @DeleteMapping("/exercises/{id}")
+    public ResponseEntity<Void> deleteExercise(@PathVariable Long id) {
+        exerciseService.deleteExercise(id);
         return ResponseEntity.noContent().build();
     }
 }

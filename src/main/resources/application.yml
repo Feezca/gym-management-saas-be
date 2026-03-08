@@ -3,9 +3,9 @@ spring:
     name: gym-management-system
   
   datasource:
-    url: jdbc:postgresql://localhost:5432/gym_db
+    url: jdbc:postgresql://localhost:5433/gym_db
     username: postgres
-    password: fc4570091
+    password: "fc4570091"
     driver-class-name: org.postgresql.Driver
 
   flyway:
@@ -13,6 +13,7 @@ spring:
     locations: classpath:db/migration/public
     default-schema: public
     baseline-on-migrate: true
+    validate-on-migrate: true
 
   jpa:
     hibernate:
@@ -20,23 +21,27 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        use_sql_comments: true
         format_sql: true
-        multiTenancy: SCHEMA
+        time_zone: UTC
+        multi_tenancy: SCHEMA
         multi_tenant_connection_provider: com.gym.config.SchemaMultiTenantConnectionProvider
-        tenant_identifier_resolver: com.gym.config.CurrentTenantIdentifierResolver
-    show-sql: false
+        multi_tenant_identifier_resolver: com.gym.config.CurrentTenantIdentifierResolver
+        show-sql: false
   
   jackson:
     serialization:
       write-dates-as-timestamps: false
-    time-zone: UTC
+    time-zone: America/Argentina/Buenos_Aires
 
 jwt:
   secret: your-256-bit-secret-key-change-this-in-production-make-it-long-enough
-  access-token-expiration: 900000 # 15 minutes in milliseconds
+  access-token-expiration: 3600000 # 15 minutes in milliseconds
   refresh-token-expiration: 604800000 # 7 days in milliseconds
 
 logging:
+  pattern:
+    console: "%d{HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n"
   level:
     com.gym: DEBUG
     org.springframework.security: DEBUG

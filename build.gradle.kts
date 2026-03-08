@@ -6,7 +6,16 @@ plugins {
 
 group = "com.gym"
 version = "1.0.0"
-java.sourceCompatibility = JavaVersion.VERSION_17
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.encoding = "UTF-8"
+}
 
 repositories {
     mavenCentral()
@@ -38,4 +47,9 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    systemProperty("user.timezone", "America/Argentina/Buenos_Aires")
+}
+
+tasks.named<JavaExec>("bootRun") {
+    systemProperty("user.timezone", "America/Argentina/Buenos_Aires")
 }
